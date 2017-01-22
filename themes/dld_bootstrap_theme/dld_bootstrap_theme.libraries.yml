@@ -1,4 +1,5 @@
 global-styling:
   css:
     theme:
+      css/overrides.min.css: {}
       css/style.css: {}
