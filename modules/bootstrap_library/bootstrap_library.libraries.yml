@@ -7,7 +7,9 @@ bootstrap:
     /libraries/bootstrap/js/bootstrap.min.js: { minified: true }
   css:
     theme:
-      /libraries/bootstrap/css/bootstrap.min.css: {}
+      /libraries/bootstrap/css/bootstrap.cerulean.min.css: {}
+#      /libraries/bootstrap/css/bootstrap.united.min.css: {}
+#      /libraries/bootstrap/css/bootstrap.min.css: {}
   dependencies:
     - core/jquery
 
