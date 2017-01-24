@@ -1,3 +1,10 @@
 /**
  * Place your custom styles here.
  */
+
+/*
+ * for all captcha form 
+ */
+.captcha {
+    margin-bottom: 10px;
+}
