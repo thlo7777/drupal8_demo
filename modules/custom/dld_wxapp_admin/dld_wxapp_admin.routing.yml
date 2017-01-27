@@ -1,0 +1,7 @@
+dld_wxapp_admin.description:
+  path: '/dld/wxapp-admin'
+  defaults:
+    _controller: '\Drupal\dld_wxapp_admin\Controller\DLDWxappAdminController::description'
+    _title: 'wechat app admin'
+  requirements:
+    _permission: 'access dld admin content'

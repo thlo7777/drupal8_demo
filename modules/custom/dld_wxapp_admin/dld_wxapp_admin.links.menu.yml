@@ -1,0 +1,5 @@
+dld_wxapp_admin.description:
+  title: 'dld wxapp admin'
+  description: 'DLD wechat app admin'
+  route_name: dld_wxapp_admin.description
+

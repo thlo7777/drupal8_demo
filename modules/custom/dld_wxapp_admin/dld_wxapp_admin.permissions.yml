@@ -1,0 +1,5 @@
+access dld admin content:
+  description: 'access user, create bar code, etc.'
+  title: 'Access dld admin information'
+  restrict access: TRUE
+

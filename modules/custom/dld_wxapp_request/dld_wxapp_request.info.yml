@@ -1,0 +1,5 @@
+name: dld wxapp request interface
+type: module
+description: "dld wechat app request interface "
+package: 'dld custom modules'
+core: 8.x

@@ -1,0 +1,8 @@
+dld_wxapp_request.dispatch:
+  path: '/dld/wxapp-request/dispatch'
+  defaults:
+    _controller: '\Drupal\dld_wxapp_request\Controller\DLDWxappFrontController::dispatch'
+    _title: 'wechat app request interface dispatch'
+  requirements:
+    _permission: 'access content'
+
