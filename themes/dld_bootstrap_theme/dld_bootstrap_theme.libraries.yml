@@ -3,3 +3,9 @@ global-styling:
     theme:
       css/overrides.min.css: {}
       css/style.css: {}
+  js:
+    js/bootstrap-hover-dropdown.min.js: {}
+    js/dld_theme_custom.js: {}
+
+  dependencies:
+    - core/jquery

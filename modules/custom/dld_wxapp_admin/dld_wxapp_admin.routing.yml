@@ -5,3 +5,12 @@ dld_wxapp_admin.description:
     _title: 'wechat app admin'
   requirements:
     _permission: 'access dld admin content'
+
+
+dld_wxapp_admin.AppIDForm:
+  path: '/dld/appIDForm'
+  defaults:
+    _form: '\Drupal\dld_wxapp_admin\Form\SaveAppIDForm'
+    _title: 'wechat app admin save appid form'
+  requirements:
+    _permission: 'access dld admin content'

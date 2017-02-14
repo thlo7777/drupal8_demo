@@ -1,0 +1,3 @@
+services:
+    dld_wxapp.api:
+        class: Drupal\dld_wxapp_services\DldWxAppApi

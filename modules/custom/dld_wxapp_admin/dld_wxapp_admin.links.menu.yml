@@ -3,3 +3,8 @@ dld_wxapp_admin.description:
   description: 'DLD wechat app admin'
   route_name: dld_wxapp_admin.description
 
+dld_wxapp_admin.AppIDForm:
+  title: 'AppID Form'
+  description: 'DLD wechat app admin appid form'
+  route_name: dld_wxapp_admin.AppIDForm
+  menu_name: main
