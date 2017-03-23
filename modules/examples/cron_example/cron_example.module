@@ -34,7 +34,6 @@ function cron_example_cron() {
   $interval = $cron_config->get('interval');
   $interval = !empty($interval) ? $interval : 3600;
 
-//git this is git test
   // We usually don't want to act every time cron runs (which could be every
   // minute) so keep a time for the next run in the site state.
   $next_execution = \Drupal::state()->get('cron_example.next_execution');
