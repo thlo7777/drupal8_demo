@@ -1,0 +1,6 @@
+wechat_service:
+    path: '/wechat-service'
+    defaults:
+        _controller: '\Drupal\wechat_service\Controller\WechatServiceController::access'
+    requirements:
+        _access: 'TRUE'

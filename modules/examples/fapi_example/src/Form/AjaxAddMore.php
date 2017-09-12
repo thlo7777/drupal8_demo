@@ -7,9 +7,8 @@ use Drupal\Core\Form\FormStateInterface;
 /**
  * Implements the ajax demo form controller.
  *
- * This example demonstrates using ajax callbacks to populate the options of a
- * color select element dynamically based on the value selected in another
- * select element in the form.
+ * This example demonstrates using ajax callbacks to add people's names to a
+ * list of picnic attendees.
  *
  * @see \Drupal\Core\Form\FormBase
  * @see \Drupal\Core\Form\ConfigFormBase
@@ -23,11 +22,18 @@ class AjaxAddMore extends DemoBase {
    * the corresponding "remove" button.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $form['description'] = array(
+    $form['description'] = [
       '#markup' => '<div>' . t('This example shows an add-more and a remove-last button.') . '</div>',
-    );
-    $i = 0;
-    $name_field = $form_state->get('num_names');
+    ];
+
+    // Gather the number of names in the form already.
+    $num_names = $form_state->get('num_names');
+    // We have to ensure that there is at least one name field.
+    if ($num_names === NULL) {
+      $name_field = $form_state->set('num_names', 1);
+      $num_names = 1;
+    }
+
     $form['#tree'] = TRUE;
     $form['names_fieldset'] = [
       '#type' => 'fieldset',
@@ -35,32 +41,32 @@ class AjaxAddMore extends DemoBase {
       '#prefix' => '<div id="names-fieldset-wrapper">',
       '#suffix' => '</div>',
     ];
-    if (empty($name_field)) {
-      $name_field = $form_state->set('num_names', 1);
-    }
-    for ($i = 0; $i < $name_field; $i++) {
+
+    for ($i = 0; $i < $num_names; $i++) {
       $form['names_fieldset']['name'][$i] = [
         '#type' => 'textfield',
         '#title' => t('Name'),
       ];
     }
-    $form['actions'] = [
+
+    $form['names_fieldset']['actions'] = [
       '#type' => 'actions',
     ];
     $form['names_fieldset']['actions']['add_name'] = [
       '#type' => 'submit',
       '#value' => t('Add one more'),
-      '#submit' => array('::addOne'),
+      '#submit' => ['::addOne'],
       '#ajax' => [
         'callback' => '::addmoreCallback',
         'wrapper' => 'names-fieldset-wrapper',
       ],
     ];
-    if ($name_field > 1) {
+    // If there is more than one name, add the remove button.
+    if ($num_names > 1) {
       $form['names_fieldset']['actions']['remove_name'] = [
         '#type' => 'submit',
         '#value' => t('Remove one'),
-        '#submit' => array('::removeCallback'),
+        '#submit' => ['::removeCallback'],
         '#ajax' => [
           'callback' => '::addmoreCallback',
           'wrapper' => 'names-fieldset-wrapper',
@@ -125,11 +131,11 @@ class AjaxAddMore extends DemoBase {
    * Reports what values were finally set.
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $values = $form_state->getValue(array('names_fieldset', 'name'));
+    $values = $form_state->getValue(['names_fieldset', 'name']);
 
-    $output = t('These people are coming to the picnic: @names', array(
+    $output = t('These people are coming to the picnic: @names', [
       '@names' => implode(', ', $values),
-    )
+    ]
     );
     drupal_set_message($output);
   }
