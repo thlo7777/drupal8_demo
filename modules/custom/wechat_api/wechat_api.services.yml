@@ -10,7 +10,7 @@ services:
   # the name of the module that implements them.
   service.wechatapi:
     # Point to the class that will contain your implementation of
-    # \Symfony\Component\EventDispatcher\EventSubscriberInterface
     class: Drupal\wechat_api\Service\WechatApiService
+    arguments: ['@config.factory', '@logger.factory']
     tags:
       - {name: wechatapi}

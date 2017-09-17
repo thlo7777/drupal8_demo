@@ -2,9 +2,11 @@
 
 namespace Drupal\dld_wxapp_cron\Plugin\QueueWorker;
 
+use Drupal\wechat_api\Service\WechatApiService;
 use Drupal\Core\Queue\QueueWorkerBase;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -25,6 +27,32 @@ class dld_wxapp_QueueToken extends QueueWorkerBase implements ContainerFactoryPl
      * @var \Psr\Log\LoggerInterface
      */
     protected $logger;
+    protected $wechatApi;
+    protected $configFactory;
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+
+//        \Drupal::logger('dld_wxapp_QueueToken')->notice(
+//            'configuration configuration: <pre>@configuration</pre>,
+//             plugin_id: @plugin_id, plugin_definition: @plugin_definition',
+//            array('@configuration' => print_r($configuration, true),
+//                '@plugin_id' => $plugin_id,
+//                '@plugin_definition' => $plugin_definition
+//            )
+//        );
+
+        return new static(
+            $configuration,
+            $plugin_id,
+            $plugin_definition,
+            $container->get('logger.factory'),
+            $container->get('config.factory'),
+            $container->get('service.wechatapi')
+        );
+    }
 
     /**
      * dld_wxapp_QueueToken constructor.
@@ -32,29 +60,18 @@ class dld_wxapp_QueueToken extends QueueWorkerBase implements ContainerFactoryPl
      * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $logger
      *   The logger service the instance should use.
      */
-    //public function __construct(array $configuration, $plugin_id, $plugin_definition, LoggerChannelFactoryInterface $logger) {
-    public function __construct(LoggerChannelFactoryInterface $logger) {
-        //parent::__construct($configuration, $plugin_id, $plugin_definition);
+    public function __construct(array $configuration,
+                                $plugin_id,
+                                $plugin_definition,
+                                LoggerChannelFactoryInterface $logger,
+                                ConfigFactoryInterface $config_factory,
+                                WechatApiService $service ) {
+
+        parent::__construct($configuration, $plugin_id, $plugin_definition, $logger, $config_factory);
+
         $this->logger = $logger;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    //public static function create(ContainerInterface $container) {
-
-//        \Drupal::logger('dld_wxapp_QueueToken')->notice(
-//            'configuration configuration: <pre>@configuration</pre>,
-//             plugin_id: @plugin_id, plugin_definition: @plugin_definition',
-//            array('@configuration' => $configuration,
-//                '@plugin_id' => $plugin_id,
-//                '@plugin_definition' => $plugin_definition
-//            )
-//        );
-        return new static(
-            $container->get('logger.factory')
-        );
+        $this->configFactory = $config_factory;
+        $this->wechatApi = $service;
     }
 
     /**
@@ -64,26 +81,20 @@ class dld_wxapp_QueueToken extends QueueWorkerBase implements ContainerFactoryPl
 
         if(time() >= $data['lastrun'] + $data['interval']) {
 
-            $this->logger->get('dld_wxapp_QueueToken')->notice('execute access token');
-            
+            //$this->logger->get('dld_wxapp_QueueToken')->notice('execute access token');
+
+            if ( $access_token = $this->wechatApi->get_access_token() ) {
+                //return token
+                $config = $this->configFactory->getEditable('dld.wxapp.config');
+                $config->set('access_token', $access_token)->save();
+            }
+
             // Set last run execute time.
-            $config = \Drupal::service('config.factory')->getEditable('dld_wxapp_cron.settings');
+            $config = $this->configFactory->getEditable('dld_wxapp_cron.settings');
+            //$config = \Drupal::service('config.factory')->getEditable('dld_wxapp_cron.settings');
             $config->set('LastRun', time())->save();
         }
 
-        $token = \Drupal::config('dld.wxapp.config')->get('get access token');
-        $AppID = \Drupal::config('dld.wxapp.config')->get('AppID');
-        $AppSecret = \Drupal::config('dld.wxapp.config')->get('AppSecret');
-        $token_url = t( $token, array( '@APPID' => $AppID, '@APPSECRET' => $AppSecret) )->render();
-
-//        $this->logger->get('dld_wxapp_QueueToken')->notice('time: ' . time());
-//        $this->logger->get('dld_wxapp_QueueToken')->notice('last_run: ' . $this->last_run);
-//        $this->logger->get('dld_wxapp_QueueToken')->notice($data);
-//        $this->logger->get('dld_wxapp_QueueToken')->notice('my cron queue worker');
-        //\Drupal::logger('dld_wxapp_QueueToken')->notice($data);
-
-        // We access our configuration.
-        //$cron_config = \Drupal::configFactory()->getEditable('examples.cron');
     }
 
 }

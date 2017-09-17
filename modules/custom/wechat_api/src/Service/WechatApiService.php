@@ -3,13 +3,22 @@
 namespace Drupal\wechat_api\Service;
 
 // These classes are used to implement a stream wrapper class.
-use Drupal\Component\Utility\Html;
-use Drupal\Core\Routing\UrlGeneratorTrait;
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Logger\LoggerChannelFactory;
 
 /**
  * wechat api service for all wechat api interface and include curl http interface
  **/
 class WechatApiService {
+
+    protected $logger;
+    protected $configFactory;
+
+    public function __construct(ConfigFactoryInterface $config_factory, LoggerChannelFactory $loggerFactory) {
+        $this->configFactory = $config_factory;
+        $this->logger = $loggerFactory->get('WechatApiService');
+
+    }
 
     /**
      * Implment php5 curl api to get https url
@@ -88,10 +97,45 @@ class WechatApiService {
      *   The stream wrapper name.
      **/
     public function getName() {
-        return t('File Example Session files');
+        $token = $this->configFactory->get('dld.wxapp.config')->get('AppID');
+        //\Drupal::logger('WechatApiService')->critical('logger ok');
+        $this->logger->notice('notice logger');
+        return $token;
     }
 
+    public function get_jsapi_ticket() {
+    }
 
-/*********************/
+    /**
+     * public get wechat general access token
+     **/
+    public function get_access_token() {
+  
+        $token = $this->configFactory->get('dld.wxapp.config')->get('get access token');
+        $AppID = $this->configFactory->get('dld.wxapp.config')->get('AppID');
+        $AppSecret = $this->configFactory->get('dld.wxapp.config')->get('AppSecret');
+        $token_url = t( $token, array( '@APPID' => $AppID, '@APPSECRET' => $AppSecret) )->render();
+
+        $result = $this->wechat_php_curl_https_get($token_url);
+
+        if (!$result) {
+
+            $this->logger->notice("get_access_token: can't get result");
+            return FALSE;
+        }
+
+        $json_data = json_decode($result);
+        if ( isset($json_data->errcode) ) {
+            $this->logger->error("get_access_token: errcode @error and errmsg @errmsg",
+                array(
+                    '@error' => $json_data->errcode,
+                    '@errmsg' => $json_data->errmsg
+                )
+            );
+            return FALSE;
+        }
+
+        return $json_data->access_token;
+    }
 
 }

@@ -3,10 +3,12 @@
 namespace Drupal\demo_test\Form;
 
 
+use Drupal\wechat_api\Service\WechatApiService;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Implements the SimpleForm form controller.
@@ -17,6 +19,18 @@ use Drupal\Core\Entity\EntityInterface;
  * @see \Drupal\Core\Form\FormBase
  */
 class DtForm extends FormBase {
+
+    protected $wechat_api;
+
+    public static function create(ContainerInterface $container) {
+        return new static(
+            $container->get('service.wechatapi')
+        );
+    }
+
+    public function __construct(WechatApiService $service) {
+        $this->wechat_api = $service;
+    }
 
   /**
    * Build the simple form.
@@ -32,34 +46,38 @@ class DtForm extends FormBase {
    * @return array
    *   The render array defining the elements of the form.
    */
-  public function buildForm(array $form, FormStateInterface $form_state) {
+    public function buildForm(array $form, FormStateInterface $form_state) {
 
-    $form['title'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Title'),
-      '#description' => $this->t('Title must be at least 5 characters in length.'),
-      '#required' => TRUE,
-    ];
+        $form['title'] = [
+          '#type' => 'textfield',
+          '#title' => $this->t('Title'),
+          '#description' => $this->t('Title must be at least 5 characters in length.'),
+          '#required' => TRUE,
+        ];
 
 
-    $node = \Drupal::entityManager()->getStorage('node')->load(16)->toArray();
+        $node = \Drupal::entityManager()->getStorage('node')->load(16)->toArray();
 
-    //dpm($node);
-    $ref_ids = $node['field_ref_wechat_api'];
-    //dpm($ref_ids);
+        //dpm($node);
+        $ref_ids = $node['field_ref_wechat_api'];
+        //dpm($ref_ids);
 
-    $token = \Drupal::config('dld.wxapp.config')->get('get access token');
-    $AppID = \Drupal::config('dld.wxapp.config')->get('AppID');
-    $AppSecret = \Drupal::config('dld.wxapp.config')->get('AppSecret');
-    $token_url = t( $token, array( '@APPID' => $AppID, '@APPSECRET' => $AppSecret) )->render();
+//        $token = \Drupal::config('dld.wxapp.config')->get('get access token');
+//        $AppID = \Drupal::config('dld.wxapp.config')->get('AppID');
+//        $AppSecret = \Drupal::config('dld.wxapp.config')->get('AppSecret');
+//        $token_url = t( $token, array( '@APPID' => $AppID, '@APPSECRET' => $AppSecret) )->render();
 
-    dpm($token_url);
+        //dpm($token_url);
 
-    $service = \Drupal::service('service.wechatapi');
-    dpm($service->getName()->render());
+        //$service = \Drupal::service('service.wechatapi');
 
-    return $form;
-  }
+        dpm($this->wechat_api->get_access_token());
+
+//        $result = $this->wechat_api->wechat_php_curl_https_get($token_url);
+//        \Drupal::logger('DtForm')->notice( 'data: <pre>@data</pre>', array('@data' => print_r($result, true)) );
+
+        return $form;
+    }
 
   /**
    * Getter method for Form ID.
@@ -71,9 +89,9 @@ class DtForm extends FormBase {
    * @return string
    *   The unique ID of the form defined by this class.
    */
-  public function getFormId() {
-    return 'demo_test_form';
-  }
+    public function getFormId() {
+        return 'demo_test_form';
+    }
 
   /**
    * Implements form validation.

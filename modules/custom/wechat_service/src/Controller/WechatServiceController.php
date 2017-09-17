@@ -18,6 +18,7 @@ class WechatServiceController {
         if(isset($echostr) || !is_null($echostr) || !empty($echostr)){
             echo $echostr;
             \Drupal::logger('WechatServiceController')->notice('@data', array('@data' => $echostr));
+
             return new Response(null, 200, array());
         }
 //        \Drupal::logger('WechatServiceController')->notice('hello');
