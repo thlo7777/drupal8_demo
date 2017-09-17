@@ -40,7 +40,6 @@ install.php
 update.php
 xmlrpc.php
 
-/core
 #/modules
 /profiles
 #/themes
