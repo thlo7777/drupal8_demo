@@ -1,0 +1,8 @@
+# Define a route for our event dispatching example.
+wechat_api.description:
+  path: 'wechatapi'
+  defaults:
+    _controller: '\Drupal\wechat_api\Controller\WechatApiController::description'
+    _title: 'wechat api'
+  requirements:
+    _permission: 'access content'

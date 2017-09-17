@@ -1,0 +1,5 @@
+name: demo hooks
+type: module
+description: Provides examples of implementing, defining, and invoking hooks.
+# Information added by Drupal.org packaging script on 2017-08-11
+core: '8.x'

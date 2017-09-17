@@ -1,0 +1,50 @@
+<?php
+
+/**
+ * @file
+ * Examples demonstrating how to implement and invoke hooks.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\NodeInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_node_presave().
+ */
+function demo_hooks_node_presave(Drupal\Core\Entity\EntityInterface $entity) {
+    if ($entity->bundle() == "wechat_api_interface") {
+
+        \Drupal::logger('demo_hooks_node_presave')->notice(
+            '@data', array('@data' => "presave"));
+    }
+
+}
+
+/**
+ * Implement hook_ENTITY_TYPE_update()
+ **/
+function demo_hooks_node_update(Drupal\Core\Entity\EntityInterface $entity) {
+    if ($entity->bundle() == "wechat_api_interface") {
+
+        $node_arr = $entity->toArray();
+
+        $ref_ids = $node_arr['field_ref_wechat_api'];
+
+        foreach ($ref_ids as $key => $id) {
+            $node = \Drupal::entityManager()->getStorage('node')->load($id['target_id'])->toArray();
+
+            \Drupal::logger('demo_hooks_node_update')->notice(
+                '<pre>@data</pre>', array('@data' => print_r($node, TRUE)));
+            $dld_app_config = \Drupal::service('config.factory')->getEditable('dld.wxapp.config');
+            $dld_app_config->set($node['title'][0]['value'], $node['field_text2'][0]['value']);
+            $dld_app_config->save();
+        }
+    }
+
+}
+
+/**
+ * @} End of "defgroup demo_hooks".
+ */
