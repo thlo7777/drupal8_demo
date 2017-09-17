@@ -1,7 +1,7 @@
 global-styling:
   css:
     theme:
-      css/overrides.min.css: {}
+      css/overrides-united.min.css: {}
       css/style.css: {}
   js:
     js/bootstrap-hover-dropdown.min.js: {}

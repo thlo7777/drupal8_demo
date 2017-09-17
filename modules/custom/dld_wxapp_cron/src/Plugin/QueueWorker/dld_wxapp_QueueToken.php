@@ -62,8 +62,24 @@ class dld_wxapp_QueueToken extends QueueWorkerBase implements ContainerFactoryPl
      */
     public function processItem($data) {
 
-        $this->logger->get('dld_wxapp_QueueToken')->notice($data);
-        $this->logger->get('dld_wxapp_QueueToken')->notice('my cron queue worker');
+        if(time() >= $data['lastrun'] + $data['interval']) {
+
+            $this->logger->get('dld_wxapp_QueueToken')->notice('execute access token');
+            
+            // Set last run execute time.
+            $config = \Drupal::service('config.factory')->getEditable('dld_wxapp_cron.settings');
+            $config->set('LastRun', time())->save();
+        }
+
+        $token = \Drupal::config('dld.wxapp.config')->get('get access token');
+        $AppID = \Drupal::config('dld.wxapp.config')->get('AppID');
+        $AppSecret = \Drupal::config('dld.wxapp.config')->get('AppSecret');
+        $token_url = t( $token, array( '@APPID' => $AppID, '@APPSECRET' => $AppSecret) )->render();
+
+//        $this->logger->get('dld_wxapp_QueueToken')->notice('time: ' . time());
+//        $this->logger->get('dld_wxapp_QueueToken')->notice('last_run: ' . $this->last_run);
+//        $this->logger->get('dld_wxapp_QueueToken')->notice($data);
+//        $this->logger->get('dld_wxapp_QueueToken')->notice('my cron queue worker');
         //\Drupal::logger('dld_wxapp_QueueToken')->notice($data);
 
         // We access our configuration.

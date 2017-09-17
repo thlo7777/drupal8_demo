@@ -34,7 +34,7 @@ abstract class Field extends DsFieldBase {
     }
 
     if (empty($output)) {
-      return array();
+      return [];
     }
 
     $template = <<<TWIG
@@ -51,12 +51,20 @@ abstract class Field extends DsFieldBase {
 {% endif %}
 TWIG;
 
-    $entity_url = $this->entity()->toUrl();
-    if (!empty($config['link class'])) {
-      $entity_url->setOption('attributes', ['class' => explode(' ', $config['link class'])]);
+    // Sometimes it can be impossible to make a link to the entity, because it
+    // has no id as it has not yet been saved, e.g. when previewing an unsaved
+    // inline entity form.
+    $is_link = FALSE;
+    $entity_url = NULL;
+    if (!empty($this->entity()->id())) {
+      $is_link = !empty($config['link']);
+      $entity_url = $this->entity()->toUrl();
+      if (!empty($config['link class'])) {
+        $entity_url->setOption('attributes', ['class' => explode(' ', $config['link class'])]);
+      }
     }
 
-    // Build the attributes
+    // Build the attributes.
     $attributes = new Attribute();
     if (!empty($config['class'])) {
       $attributes->addClass($config['class']);
@@ -66,10 +74,10 @@ TWIG;
       '#type' => 'inline_template',
       '#template' => $template,
       '#context' => [
-        'is_link' => !empty($config['link']),
+        'is_link' => $is_link,
         'wrapper' => !empty($config['wrapper']) ? $config['wrapper'] : '',
-        'attributes' =>  $attributes,
-        'entity_url' => $this->entity()->toUrl(),
+        'attributes' => $attributes,
+        'entity_url' => $entity_url,
         'output' => $output,
       ],
     ];

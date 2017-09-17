@@ -12,9 +12,13 @@
  */
 function dld_wxapp_cron_cron() {
 
+    $config = \Drupal::config('dld_wxapp_cron.settings');
+    $interval = $config->get('interval');
+    $lastrun = $config->get('LastRun');
+    $item = array('interval' => $interval, 'lastrun' => $lastrun);
     //add queue to cron
     $queue = \Drupal::queue('cron_access_Token_queue');
-    $queue->createItem('cron_access_Token_queue');
+    $queue->createItem($item);
 
 }
 
