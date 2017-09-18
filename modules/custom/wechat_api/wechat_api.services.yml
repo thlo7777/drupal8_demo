@@ -12,5 +12,20 @@ services:
     # Point to the class that will contain your implementation of
     class: Drupal\wechat_api\Service\WechatApiService
     arguments: ['@config.factory', '@logger.factory']
-    tags:
-      - {name: wechatapi}
+
+  service.wechaterrcode:
+    class: Drupal\wechat_api\Service\ErrorCode
+
+  service.wechatmsgcrypt:
+    class: Drupal\wechat_api\Service\WXBizMsgCrypt
+    arguments: ['@service.wechatsha1', '@service.wechatxmlparse', '@service.wechatprpcrypt', '@service.wechaterrcode']
+  service.wechatxmlparse:
+    class: Drupal\wechat_api\Service\XMLParse
+    arguments: ['@service.wechaterrcode']
+  service.wechatsha1:
+    class: Drupal\wechat_api\Service\WXSHA1
+    arguments: ['@service.wechaterrcode']
+  service.wechatprpcrypt:
+    class: Drupal\wechat_api\Service\Prpcrypt
+    arguments: ['@service.wechaterrcode']
+

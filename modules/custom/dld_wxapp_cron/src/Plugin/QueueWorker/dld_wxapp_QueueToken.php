@@ -87,6 +87,11 @@ class dld_wxapp_QueueToken extends QueueWorkerBase implements ContainerFactoryPl
                 //return token
                 $config = $this->configFactory->getEditable('dld.wxapp.config');
                 $config->set('access_token', $access_token)->save();
+                
+                //set token value to node 15
+                $entity = \Drupal::entityManager()->getStorage('node')->load(15);
+                $entity->field_text1->value = $access_token;
+                $entity->save();
             }
 
             // Set last run execute time.

@@ -120,13 +120,13 @@ class WechatApiService {
 
         if (!$result) {
 
-            $this->logger->notice("get_access_token: can't get result");
+            $this->logger->notice(__FUNCTION__ . ": can't get result");
             return FALSE;
         }
 
         $json_data = json_decode($result);
         if ( isset($json_data->errcode) ) {
-            $this->logger->error("get_access_token: errcode @error and errmsg @errmsg",
+            $this->logger->error(__FUNCTION__ . ": errcode @error and errmsg @errmsg",
                 array(
                     '@error' => $json_data->errcode,
                     '@errmsg' => $json_data->errmsg
@@ -138,4 +138,34 @@ class WechatApiService {
         return $json_data->access_token;
     }
 
+    /**
+     * get wechat ip address
+     **/
+
+    public function get_ip_server() {
+        $api_interface = $this->configFactory->get('dld.wxapp.config')->get('get ip server');
+        $token = $this->configFactory->get('dld.wxapp.config')->get('access_token');
+        $token_url = t( $api_interface, array( '@ACCESS_TOKEN' => $token ) )->render();
+
+        $result = $this->wechat_php_curl_https_get($token_url);
+
+        if (!$result) {
+
+            $this->logger->notice(__FUNCTION__ . ": can't get result");
+            return FALSE;
+        }
+
+        $json_data = json_decode($result);
+        if ( isset($json_data->errcode) ) {
+            $this->logger->error(__FUNCTION__ . ": errcode @error and errmsg @errmsg",
+                array(
+                    '@error' => $json_data->errcode,
+                    '@errmsg' => $json_data->errmsg
+                )
+            );
+            return FALSE;
+        }
+
+        return $json_data;
+    }
 }

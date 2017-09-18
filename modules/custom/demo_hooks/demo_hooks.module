@@ -13,7 +13,7 @@ use Drupal\Core\Routing\RouteMatchInterface;
 /**
  * Implements hook_node_presave().
  */
-function demo_hooks_node_presave(Drupal\Core\Entity\EntityInterface $entity) {
+function demo_hooks_node_presave(EntityInterface $entity) {
     if ($entity->bundle() == "wechat_api_interface") {
 
         \Drupal::logger('demo_hooks_node_presave')->notice(
@@ -25,7 +25,11 @@ function demo_hooks_node_presave(Drupal\Core\Entity\EntityInterface $entity) {
 /**
  * Implement hook_ENTITY_TYPE_update()
  **/
-function demo_hooks_node_update(Drupal\Core\Entity\EntityInterface $entity) {
+function demo_hooks_node_update(EntityInterface $entity) {
+
+    /**
+     * update wechat api message interface when save or update
+     **/
     if ($entity->bundle() == "wechat_api_interface") {
 
         $node_arr = $entity->toArray();
@@ -41,6 +45,21 @@ function demo_hooks_node_update(Drupal\Core\Entity\EntityInterface $entity) {
             $dld_app_config->set($node['title'][0]['value'], $node['field_text2'][0]['value']);
             $dld_app_config->save();
         }
+    }
+
+    /**
+     * update/save wechat server config in configuration
+     **/
+    if ($entity->bundle() == "wechat_server_configure") {
+
+        $wx_token = $entity->field_text3->value;
+        $EncodingAESKey = $entity->field_text4->value;
+//        \Drupal::logger('wechat_server_configure field')->notice($str);
+        $dld_app_config = \Drupal::service('config.factory')->getEditable('dld.wxapp.config');
+        $dld_app_config->set('WX Token', $wx_token);
+        $dld_app_config->set('EncodingAESKey', $EncodingAESKey);
+        $dld_app_config->save();
+        
     }
 
 }
