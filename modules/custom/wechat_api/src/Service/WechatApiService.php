@@ -1,5 +1,6 @@
 <?php
 
+#service.wechatapi
 namespace Drupal\wechat_api\Service;
 
 // These classes are used to implement a stream wrapper class.
@@ -168,4 +169,40 @@ class WechatApiService {
 
         return $json_data;
     }
+
+    /**
+     * receive wechat server message
+     **/
+    public static $recv_msg_array_func = [
+        'event' => [
+            'subscribe' => 'recv_event_user_subscribe',
+            'unsubscribe' => 'recv_event_user_unsubscribe'
+        ],
+        'text' => 'recv_user_text',
+        'image' => 'recv_user_image',
+    ];
+
+    public function recv_event_user_subscribe($recvMsg) {
+        $openID = $recvMsg['FromUserName'];
+        $this->logger->notice(__FUNCTION__ . ": openID @openid subscribe", array('@openid' => $openID));
+
+        return 'success';
+    }
+
+    public function recv_event_user_unsubscribe($recvMsg) {
+
+        $openID = $recvMsg['FromUserName'];
+        $this->logger->notice(__FUNCTION__ . ": openID @openid unsubscribe", array('@openid' => $openID));
+
+        return 'success';
+    }
+
+    public function recv_user_text($recvMsg) {
+        $openID = $recvMsg['FromUserName'];
+        $content = $recvMsg['Content'];
+        $this->logger->notice(__FUNCTION__ . ": user text @data", array('@data' => $content));
+
+        return 'success';
+    }
+
 }

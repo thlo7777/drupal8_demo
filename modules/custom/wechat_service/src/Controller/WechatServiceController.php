@@ -2,9 +2,13 @@
 
 namespace Drupal\wechat_service\Controller;
 
+use Drupal\wechat_api\Service\WechatApiService;
+use Drupal\wechat_api\Service\WXBizMsgCrypt;
+
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Link;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 
 /**
@@ -18,16 +22,36 @@ class WechatServiceController extends ControllerBase {
      * @var \Psr\Log\LoggerInterface
      */
     protected $logger;
-    protected $wechatApi;
+    protected $wechat_api;
     protected $wechatConfig;
+    protected $wxMsgCrypt;
+
+    /**
+     * private data
+     **/
+    private $msg_signature;
+    private $timestamp;
+    private $nonce;
+
+    private $access_token;
 
     /**
      * {@inheritdoc} 
      **/
-    public function __construct()
-    {
+    public function __construct(WechatApiService $service, WXBizMsgCrypt $msgCrypt) {
+
         $this->logger = $this->getLogger('wechat access enter');
         $this->wechatConfig = $this->config('dld.wxapp.config');
+        $this->wxMsgCrypt = $msgCrypt;
+        $this->wechat_api = $service;
+
+    }
+
+    public static function create(ContainerInterface $container) {
+        return new static(
+            $container->get('service.wechatapi'),
+            $container->get('service.wechatmsgcrypt')
+        );
     }
 
     /**
@@ -69,13 +93,14 @@ class WechatServiceController extends ControllerBase {
      * 3. 开发者获得加密后的字符串可与signature对比，标识该请求来源于微信
      **/
     public function checkSignature() {
+        $this->msg_signature = filter_input(INPUT_GET, 'msg_signature', FILTER_SANITIZE_SPECIAL_CHARS);
         $signature = filter_input(INPUT_GET, 'signature', FILTER_SANITIZE_SPECIAL_CHARS);
-        $timestamp = filter_input(INPUT_GET, 'timestamp', FILTER_SANITIZE_SPECIAL_CHARS);
-        $nonce = filter_input(INPUT_GET, 'nonce', FILTER_SANITIZE_SPECIAL_CHARS);
+        $this->timestamp = filter_input(INPUT_GET, 'timestamp', FILTER_SANITIZE_SPECIAL_CHARS);
+        $this->nonce = filter_input(INPUT_GET, 'nonce', FILTER_SANITIZE_SPECIAL_CHARS);
 
         $token = $this->wechatConfig->get('WX Token');
 
-        $tmpArr = array($token, $timestamp, $nonce);
+        $tmpArr = array($token, $this->timestamp, $this->nonce);
         sort($tmpArr, SORT_STRING);
         $tmpStr = implode( $tmpArr );
         $tmpStr = sha1( $tmpStr );
@@ -94,14 +119,36 @@ class WechatServiceController extends ControllerBase {
 
         $result = 'success';
 
-        //libxml_disable_entity_loader is to prevent XML eXternal Entity Injection,
-        //the best way is to check the validity of xml by yourself. 
-        //use libxml_disable_entity_loader is ok now.
-        libxml_disable_entity_loader(true);
-        $xmldata = simplexml_load_string($xmldata, 'SimpleXMLElement', LIBXML_NOCDATA);
-        $postArray = $this->xml2array($xmldata);
-        $this->logger->notice('postArray <pre>@data</pre>', array('@data' => print_r($postArray, TRUE)));
-        
+        //set default WX token and aeskey and appid
+        $token = $this->wechatConfig->get('WX Token');
+        $encodingAesKey = $this->wechatConfig->get('EncodingAESKey');
+        $appId = $this->wechatConfig->get('AppID');
+        $this->wxMsgCrypt->SetParameters($token, $encodingAesKey, $appId);
+
+        //decrypte message
+        $recv_msg = '';
+        $errCode = $this->wxMsgCrypt->decryptMsg($this->msg_signature, $this->timestamp, $this->nonce, $xmldata, $recv_msg);
+        if ($errCode == 0) {
+
+            libxml_disable_entity_loader(true);
+            $postArray = $this->xml2array(simplexml_load_string($recv_msg, 'SimpleXMLElement', LIBXML_NOCDATA));
+//            $this->logger->notice(__FUNCTION__ . ': postArray <pre>@data</pre>', array('@data' => print_r($postArray, TRUE)));
+
+            $MsgType = $postArray['MsgType'];
+
+            //dispatch message
+            if ($MsgType == 'event') {
+                $event = $postArray['Event'];
+                $cb_func = WechatApiService::$recv_msg_array_func[$MsgType][$event];
+                $result = $this->wechat_api->$cb_func($postArray);
+            } else {
+                $cb_func = WechatApiService::$recv_msg_array_func[$MsgType];
+                $result = $this->wechat_api->$cb_func($postArray);
+            }
+        } else {
+            $this->logger->error(__FUNCTION__ . ' errcode: @data', array('@data' => $errCode, TRUE));
+        }
+
         //watchdog('wechat recv message', 'postArray <pre>@print_r</pre>', array('@print_r' => print_r($postArray, TRUE)));
 //
 //        //$MsgType = (string)$xmldata->MsgType;

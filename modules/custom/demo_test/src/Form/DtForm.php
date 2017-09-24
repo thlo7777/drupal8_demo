@@ -32,6 +32,30 @@ class DtForm extends FormBase {
         $this->wechat_api = $service;
     }
 
+    protected static $test_array = [
+        'event' => [
+            'subscribe' => 'func1',
+            'unsubscribe' => 'func2'
+        ],
+        'text' => 'recv_text',
+        'image' => 'recv_image',
+    ];
+
+    public function recv_image($str) {
+        dpm('image: '. $str);
+    }
+
+    public function recv_text($str) {
+        dpm('text: '. $str);
+    }
+
+    public function func1($int) {
+        dpm('func1: ' . $int);
+    }
+    public function func2($int) {
+        dpm('func2: ' . $int);
+    }
+
   /**
    * Build the simple form.
    *
@@ -62,6 +86,13 @@ class DtForm extends FormBase {
         $ref_ids = $node['field_ref_wechat_api'];
         //dpm($ref_ids);
 
+        //$func = $test_array['event']['unsubscribe'];
+        $func = self::$test_array['text'];
+        $this->$func('hello');
+
+        $func = self::$test_array['event']['subscribe'];
+        $this->$func(4);
+
 //        $token = \Drupal::config('dld.wxapp.config')->get('get access token');
 //        $AppID = \Drupal::config('dld.wxapp.config')->get('AppID');
 //        $AppSecret = \Drupal::config('dld.wxapp.config')->get('AppSecret');
@@ -73,55 +104,54 @@ class DtForm extends FormBase {
 
         //\Drupal::logger('DtForm')->notice( 'ip addr: <pre>@data</pre>', array('@data' => print_r($this->wechat_api->get_ip_server(), true)) );
 
-        $service = \Drupal::service('service.wechatmsgcrypt');
-
-//$encodingAesKey = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG";
-$encodingAesKey = "jNzJclldDQ0Nt6A2z4EdFLOMbGp3jTo3ilpFLN8qcZl";
-$token = "pamtest";
-$timeStamp = "1409304348";
-$nonce = "xxxxxx";
-$appId = "wxb11529c136998cb6";
-$text = "<xml><ToUserName><![CDATA[oia2Tj我是中文jewbmiOUlr6X-1crbLOvLw]]></ToUserName><FromUserName><![CDATA[gh_7f083739789a]]></FromUserName><CreateTime>1407743423</CreateTime><MsgType><![CDATA[video]]></MsgType><Video><MediaId><![CDATA[eYJ1MbwPRJtOvIEabaxHs7TX2D-HV71s79GUxqdUkjm6Gs2Ed1KF3ulAOA9H1xG0]]></MediaId><Title><![CDATA[testCallBackReplyVideo]]></Title><Description><![CDATA[testCallBackReplyVideo]]></Description></Video></xml>";
-
-
-$service->SetParameters($token, $encodingAesKey, $appId);
-
-$encryptMsg = '';
-$errCode = $service->encryptMsg($text, $timeStamp, $nonce, $encryptMsg);
-if ($errCode == 0) {
-    \Drupal::logger('DtForm')->notice('$encryptMsg: @data', array('@data' => $encryptMsg));
-} else {
-    dpm("errcode " . $errCode);
-}
-
-$xmldata = simplexml_load_string($encryptMsg, 'SimpleXMLElement', LIBXML_NOCDATA);
-$xml_post = $this->xml2array($xmldata);
-dpm($xml_post);
-
-$encrypt = $xml_post['Encrypt'];
-$msg_sign = $xml_post['MsgSignature'];
-//$xml_tree = new DOMDocument();
-//$xml_tree->loadXML($encryptMsg);
-//$array_e = $xml_tree->getElementsByTagName('Encrypt');
-//$array_s = $xml_tree->getElementsByTagName('MsgSignature');
-//$encrypt = $array_e->item(0)->nodeValue;
-//$msg_sign = $array_s->item(0)->nodeValue;
+//        $service = \Drupal::service('service.wechatmsgcrypt');
+////$encodingAesKey = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG";
+//$encodingAesKey = "jNzJclldDQ0Nt6A2z4EdFLOMbGp3jTo3ilpFLN8qcZl";
+//$token = "pamtest";
+//$timeStamp = "1409304348";
+//$nonce = "xxxxxx";
+//$appId = "wxb11529c136998cb6";
+//$text = "<xml><ToUserName><![CDATA[oia2Tj我是中文jewbmiOUlr6X-1crbLOvLw]]></ToUserName><FromUserName><![CDATA[gh_7f083739789a]]></FromUserName><CreateTime>1407743423</CreateTime><MsgType><![CDATA[video]]></MsgType><Video><MediaId><![CDATA[eYJ1MbwPRJtOvIEabaxHs7TX2D-HV71s79GUxqdUkjm6Gs2Ed1KF3ulAOA9H1xG0]]></MediaId><Title><![CDATA[testCallBackReplyVideo]]></Title><Description><![CDATA[testCallBackReplyVideo]]></Description></Video></xml>";
 //
-
-$format = "<xml><ToUserName><![CDATA[toUser]]></ToUserName><Encrypt><![CDATA[%s]]></Encrypt></xml>";
-$from_xml = sprintf($format, $encrypt);
-
-// 第三方收到公众号平台发送的消息
-$msg = '';
-$errCode = $service->decryptMsg($msg_sign, $timeStamp, $nonce, $from_xml, $msg);
-if ($errCode == 0) {
-    \Drupal::logger('DtForm')->notice('$msg: @data', array('@data' => $msg));
-    dpm("解密后: " . $msg);
-} else {
-    dpm("errcode " . $errCode);
-}
-
-
+//
+//$service->SetParameters($token, $encodingAesKey, $appId);
+//
+//$encryptMsg = '';
+//$errCode = $service->encryptMsg($text, $timeStamp, $nonce, $encryptMsg);
+//if ($errCode == 0) {
+//    \Drupal::logger('DtForm')->notice('$encryptMsg: @data', array('@data' => $encryptMsg));
+//} else {
+//    dpm("errcode " . $errCode);
+//}
+//
+//$xmldata = simplexml_load_string($encryptMsg, 'SimpleXMLElement', LIBXML_NOCDATA);
+//$xml_post = $this->xml2array($xmldata);
+//dpm($xml_post);
+//
+//$encrypt = $xml_post['Encrypt'];
+//$msg_sign = $xml_post['MsgSignature'];
+////$xml_tree = new DOMDocument();
+////$xml_tree->loadXML($encryptMsg);
+////$array_e = $xml_tree->getElementsByTagName('Encrypt');
+////$array_s = $xml_tree->getElementsByTagName('MsgSignature');
+////$encrypt = $array_e->item(0)->nodeValue;
+////$msg_sign = $array_s->item(0)->nodeValue;
+////
+//
+//$format = "<xml><ToUserName><![CDATA[toUser]]></ToUserName><Encrypt><![CDATA[%s]]></Encrypt></xml>";
+//$from_xml = sprintf($format, $encrypt);
+//
+//// 第三方收到公众号平台发送的消息
+//$msg = '';
+//$errCode = $service->decryptMsg($msg_sign, $timeStamp, $nonce, $from_xml, $msg);
+//if ($errCode == 0) {
+//    \Drupal::logger('DtForm')->notice('$msg: @data', array('@data' => $msg));
+//    dpm("解密后: " . $msg);
+//} else {
+//    dpm("errcode " . $errCode);
+//}
+//
+//
 
 //        dpm($this->wechat_api->get_access_token());
 //
