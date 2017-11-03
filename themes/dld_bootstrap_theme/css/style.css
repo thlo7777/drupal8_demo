@@ -8,3 +8,27 @@
 .captcha {
     margin-bottom: 10px;
 }
+
+.tag-name1 {
+    margin: 10px;
+}
+
+.tag-timu-row {
+    margin-bottom: 10px;
+}
+
+/*
+ * for node xiaowen hr 
+ */
+.questions-hr {
+    margin-bottom: 15px;
+}
+
+div.field--name-field-shitixiaowen > div.field--item:nth-of-type(even) {
+    background-color: #ddd;
+}
+
+.tag-clicked {
+    background-color: green;
+    color: #fff;
+}

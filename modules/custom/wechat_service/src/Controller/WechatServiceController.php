@@ -149,7 +149,7 @@ class WechatServiceController extends ControllerBase {
             $this->logger->error(__FUNCTION__ . ' errcode: @data', array('@data' => $errCode, TRUE));
         }
 
-        //watchdog('wechat recv message', 'postArray <pre>@print_r</pre>', array('@print_r' => print_r($postArray, TRUE)));
+        watchdog('wechat recv message', 'postArray <pre>@print_r</pre>', array('@print_r' => print_r($postArray, TRUE)));
 //
 //        //$MsgType = (string)$xmldata->MsgType;
 //        $MsgType = $postArray['MsgType'];

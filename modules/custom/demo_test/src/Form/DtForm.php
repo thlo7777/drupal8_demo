@@ -9,6 +9,8 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Entity\EntityTypeManager;
+use Drupal\taxonomy\Entity\Term;
 
 /**
  * Implements the SimpleForm form controller.
@@ -22,6 +24,8 @@ class DtForm extends FormBase {
 
     protected $wechat_api;
 
+    protected $term_storage;
+
     public static function create(ContainerInterface $container) {
         return new static(
             $container->get('service.wechatapi')
@@ -30,6 +34,8 @@ class DtForm extends FormBase {
 
     public function __construct(WechatApiService $service) {
         $this->wechat_api = $service;
+
+        $this->term_storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
     }
 
     protected static $test_array = [
@@ -42,18 +48,18 @@ class DtForm extends FormBase {
     ];
 
     public function recv_image($str) {
-        dpm('image: '. $str);
+        //dpm('image: '. $str);
     }
 
     public function recv_text($str) {
-        dpm('text: '. $str);
+        //dpm('text: '. $str);
     }
 
     public function func1($int) {
-        dpm('func1: ' . $int);
+        //dpm('func1: ' . $int);
     }
     public function func2($int) {
-        dpm('func2: ' . $int);
+        //dpm('func2: ' . $int);
     }
 
   /**
@@ -162,7 +168,97 @@ class DtForm extends FormBase {
 //        $result = $this->wechat_api->wechat_php_curl_https_get($token_url);
 //        \Drupal::logger('DtForm')->notice( 'data: <pre>@data</pre>', array('@data' => print_r($result, true)) );
 
+        
+        $build_tree = [];
+
+        $term_root = $this->term_storage->loadTree("yuwenzhishidian", 0, 1);
+        //$term_root = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree("yuwenzhishidian", 0, 1);
+
+        $parent = 0;
+
+        foreach ($term_root as $term) {
+
+            //\Drupal::logger('buildTree')->notice('$term: <pre>@data</pre>', array('@data' => print_r($term, true)));
+            $this->get_children($build_tree, $term, "yuwenzhishidian", 1);
+        }
+
+        //dpm(json_encode($build_tree, JSON_UNESCAPED_UNICODE));
+        //ksm($build_tree);
+
+        //dpm($this->term_storage->loadTree("yuwenzhishidian", 47, 1));
+
+
+        $term_root = $this->term_storage->loadTree("yuwen_shiti", 9, 1);
+        $child_tree = [];
+
+
+        if ( !count($term_root) ) {
+
+            //$term = $this->term_storage->load(9);
+            $term = Term::load(9);
+
+            ksm($term);
+            $child_tree[$term->id()]->id = $term->id();
+            $child_tree[$term->id()]->vid = $term->getVocabularyId();
+            $child_tree[$term->id()]->name = $term->getName();
+            $child_tree[$term->id()]->children = [];
+
+
+            //ksm($term->toArray());
+            //$child_tree[$object->tid] = $object;
+        } else {
+            foreach ($term_root as $term) {
+                $this->build_child_term_tree($child_tree, $term, "yuwen_shiti", 1);
+            }
+        }
+
+
+        ksm($child_tree);
+
         return $form;
+    }
+
+    protected function build_child_term_tree(&$build, $object, $vid, $max_leve) {
+
+        $child_tree = $this->term_storage->loadTree($vid, $object->tid, 1);
+
+        //ksm($object->tid);
+        $build[$object->tid] = $object;
+        $build[$object->tid]->children = [];
+        $object_children = &$build[$object->tid]->children;
+
+        if ( !count($child_tree) ) {
+            return ; 
+            
+        } else {
+
+            foreach ($child_tree as $childObject) {
+                $this->build_child_term_tree($object_children, $childObject, $vid, 1);
+            }
+        }
+
+    }
+
+    public function get_children(&$build, $object, $vid, $max_leve) {
+
+        //$children = $this->term_storage->loadChildren($object->tid, $vid);
+        $child_tree = $this->term_storage->loadTree($vid, $object->tid, 1);
+        
+        $node_item = new term_node();
+        $node_item->text = $object->name;
+        $node_item->href = "javascript:void(0)";
+        $node_item->tags = [$object->tid];
+
+        if ( count($child_tree) ) {
+            $node_item->nodes = [];
+
+            foreach ($child_tree as $childObject) {
+                $this->get_children($node_item->nodes, $childObject, $vid, 1);
+            }
+        }
+
+        $build[] = $node_item;
+
     }
 
   /**
@@ -235,3 +331,10 @@ class DtForm extends FormBase {
         return $arr;
     }
 }
+
+    class term_node {
+        public $text;
+        public $href;
+        public $tags;
+    }
+

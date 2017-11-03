@@ -9,3 +9,25 @@ global-styling:
 
   dependencies:
     - core/jquery
+
+yuncheng.termtree:
+  js:
+    js/bootstrap-treeview.min.js: {}
+    js/term_tree.js: {}
+    js/yun_cheng_search.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupalSettings
+
+  # Add css file.
+  css:
+    theme:
+      css/bootstrap-treeview.min.css: {}
+
+bootstrap-hover-dropdown:
+  js:
+    js/bootstrap-dropdownhover.min.js: {}
+  css:
+    theme:
+      css/bootstrap-dropdownhover.min.css: {}
+      css/animate.min.css: {}
