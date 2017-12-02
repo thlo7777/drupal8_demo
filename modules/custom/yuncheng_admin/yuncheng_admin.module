@@ -1,0 +1,93 @@
+<?php
+
+
+use Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\NodeInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use \Drupal\block_content\BlockContentInterface;
+
+
+
+/**
+ * Implemnts hook_shs_term_data_alter(&$data, $context)
+ */
+//function yuncheng_admin_shs_term_data_alter(&$data, $context) {
+//}
+
+/**
+ * Implements hook_form_alter().
+ */
+function yuncheng_admin_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+    // This is an example of what is known as an alter hook. The $form paremater
+    // in this case represents an already complete Form API array and our hook
+    // implementation is being given the opportunity to make changes to the
+    // existing data structure before it's used. Inovking and alter hooks is a
+    // common pattern anytime lists or complex data structures are assembled.
+    // hook_form_alter(), which allows you to manipulate any form, is one of the
+    // most commonly implemented hooks.
+    //
+    // @see hook_form_alter()
+    // @see hook_form_FORM_ID_alter()
+    //
+    // If this is the user login form, change the description text of the username
+    // field.
+    if ($form_id === 'node_yuwen_shiti_form') {
+        //dpm($form_id);
+        $form['title']['#disabled'] = 'disabled';
+        $form['title']['widget'][0]['value']['#default_value'] = 'none-title-shiti';
+        $form['title']['#access'] = FALSE;
+
+    }
+}
+
+/**
+ * Implements hook_inline_entity_form_entity_form_alter()
+ */
+function yuncheng_admin_inline_entity_form_entity_form_alter(&$entity_form, &$form_state) {
+
+    //disable node title
+    if ($entity_form['#bundle'] == "topic_material") {
+        //dpm($entity_form);
+        $entity_form['title']['#disabled'] = 'disabled';
+        $entity_form['title']['widget'][0]['value']['#default_value'] = 'None';
+        $entity_form['title']['#access'] = FALSE;
+
+    }
+
+    if ($entity_form['#bundle'] == "ciaoliao_nanju") {
+        //dpm($entity_form);
+        $entity_form['title']['#disabled'] = 'disabled';
+        $entity_form['title']['widget'][0]['value']['#default_value'] = 'None';
+        $entity_form['title']['#access'] = FALSE;
+
+    }
+
+    if ($entity_form['#bundle'] == "time_cailiao_beixuanxiang") {
+        //dpm($entity_form);
+        $entity_form['title']['#disabled'] = 'disabled';
+        $entity_form['title']['widget'][0]['value']['#default_value'] = 'None';
+        $entity_form['title']['#access'] = FALSE;
+
+    }
+
+    if ($entity_form['#bundle'] == "question_items") {
+        //dpm($entity_form);
+        $entity_form['title']['#disabled'] = 'disabled';
+        $entity_form['title']['widget'][0]['value']['#default_value'] = 'None';
+        $entity_form['title']['#access'] = FALSE;
+
+    }
+
+
+    if ($entity_form['#bundle'] == "xiaowen_xuanxiang") {
+        //dpm($entity_form);
+        $entity_form['title']['#disabled'] = 'disabled';
+        $entity_form['title']['widget'][0]['value']['#default_value'] = 'None';
+        $entity_form['title']['#access'] = FALSE;
+
+    }
+
+}
+

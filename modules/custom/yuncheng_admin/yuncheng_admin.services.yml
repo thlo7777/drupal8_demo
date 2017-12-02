@@ -1,0 +1,6 @@
+services:
+# Give your service a unique name, convention is to prefix service names with
+# the name of the module that implements them.
+    taxonomy_tree.taxonomy_term_tree:
+        class: Drupal\yuncheng_admin\Service\WechatApiService
+        arguments: ['@entity_type.manager', '@logger.factory']

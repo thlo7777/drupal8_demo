@@ -1,0 +1,4 @@
+yuncheng admin module:
+  description: 'ajax api etc'
+  title: 'Access yun cheng information'
+  restrict access: TRUE

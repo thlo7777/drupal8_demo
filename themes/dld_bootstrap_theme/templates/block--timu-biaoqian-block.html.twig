@@ -1,0 +1,299 @@
+{#
+/**
+ * @file
+ * Default theme implementation to display a block.
+ *
+ * Available variables:
+ * - plugin_id: The ID of the block implementation.
+ * - label: The configured label of the block if visible.
+ * - configuration: A list of the block's configuration values.
+ *   - label: The configured label for the block.
+ *   - label_display: The display settings for the label.
+ *   - provider: The module or other provider that provided this block plugin.
+ *   - Block plugin specific settings will also be stored here.
+ * - content: The content of this block.
+ * - attributes: array of HTML attributes populated by modules, intended to
+ *   be added to the main container tag of this template.
+ *   - id: A valid HTML ID and guaranteed unique.
+ * - title_attributes: Same as attributes, except applied to the main title
+ *   tag that appears in the template.
+ * - title_prefix: Additional output populated by modules, intended to be
+ *   displayed in front of the main title tag that appears in the template.
+ * - title_suffix: Additional output populated by modules, intended to be
+ *   displayed after the main title tag that appears in the template.
+ *
+ * @see template_preprocess_block()
+ *
+ * @ingroup themeable
+ */
+#}
+
+{% macro find_children_dropdown(child_obj) %}   {# cursive function for display term tree #}
+
+    {% if child_obj.children is not empty%}
+        <li class="dropdown">
+            <a href="javascript:void(0)"> {{ child_obj.name }}<span class="caret"></span></a>
+            <ul class="dropdown-menu dropdownhover-right">
+                {% for child in child_obj.children %}
+                    {{ _self.find_children_dropdown(child) }}
+                {% endfor %}
+            </ul>
+            
+        </li>
+    {% else %}
+        <li><a href="javascript:void(0)" class="term-child" tid={{child_obj.tid}}>{{ child_obj.name }}</a></li>
+    {% endif %}
+
+{% endmacro %}
+
+<div{{ attributes }}>
+
+    {{ title_prefix }}
+
+    {% if label %}
+        {# <h3{{ title_attributes }}>{{ label }}</h3> #}
+    {% endif %}
+
+    {{ title_suffix }}
+
+
+    {% block content %}
+        {# {{ content }} #}
+
+        {# {{ kint(content['gaokaozhenti']) }} #}
+        <div class="row tag-timu-row">
+            <div class="col-sm-2">
+                <span class="tag-name1">来源:</span>
+            </div>
+
+            <div class="col-sm-2">
+                <div class="dropdown">
+                    {% if content['gaokaozhenti']|length > 1 %}
+                        <button class="btn btn-default dropdown-toggle"
+                                type="button"
+                                search-tag="shiti-laiyuan-zhenti"
+                                data-toggle="dropdown"
+                                data-hover="dropdown"
+                                aria-expanded="false"> 
+                                高考真题<span class="caret"></span>
+                        </button>
+                    {% else %}
+                        {% set one_child= content['gaokaozhenti']|first %}
+                        <button class="btn btn-default dropdown-toggle term-child" tid={{one_child.tid}}
+                                type="button"
+                                search-tag="shiti-laiyuan-zhenti"
+                                data-toggle="dropdown"
+                                data-hover="dropdown"
+                                aria-expanded="false"> 
+                                高考真题
+                        </button>
+                    {% endif %}
+
+                    {% if content['gaokaozhenti']|length > 1 %}
+                        <ul class="dropdown-menu dropdownhover-bottom" role="menu" aria-labelledby="dropdownMenu1">
+                            {% for child in content['gaokaozhenti'] %}
+                                {{ _self.find_children_dropdown(child) }}
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                </div>
+            </div>
+
+            <div class="col-sm-2">
+                <div class="dropdown">
+                    {% if content['mingxiaomoni']|length > 1 %}
+                        <button class="btn btn-default dropdown-toggle"
+                                type="button"
+                                search-tag="shiti-laiyuan-moni"
+                                data-toggle="dropdown"
+                                data-hover="dropdown"
+                                aria-expanded="false">
+                                名校模拟<span class="caret"></span>
+                        </button>
+                    {% else %}
+                        {% set one_child= content['mingxiaomoni']|first %}
+                        <button class="btn btn-default dropdown-toggle term-child" tid={{one_child.tid}}
+                                type="button"
+                                search-tag="shiti-laiyuan-moni"
+                                data-toggle="dropdown"
+                                data-hover="dropdown"
+                                aria-expanded="false">
+                                名校模拟
+                        </button>
+                    {% endif %}
+
+                    {% if content['mingxiaomoni']|length > 1 %}
+                        <ul class="dropdown-menu dropdownhover-bottom" role="menu" aria-labelledby="dropdownMenu1">
+                            {% for child in content['mingxiaomoni'] %}
+                                {{ _self.find_children_dropdown(child) }}
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+
+        <div class="row tag-timu-row">
+            
+            {# {{ kint(content['tixing']) }} #}
+            <div class="col-sm-2">
+                <span class="tag-name1">题型:</span>
+            </div>
+            {% for child in content['tixing'] %}
+                <div class="col-sm-2">
+                    <div class="dropdown">
+                        <button class="btn btn-default dropdown-toggle term-child" tid={{child.tid}}
+                                type="button"
+                                search-tag="xiaowen-tixing"
+                                data-toggle="dropdown"
+                                data-hover="dropdown"
+                                aria-expanded="false">
+                                {{ child.name }}
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+
+        </div>
+
+        <div class="row tag-timu-row">
+            <div class="col-sm-2">
+                <span class="tag-name1">难度:</span>
+            </div>
+            {% for child in content['nandu'] %}
+                <div class="col-sm-2">
+                    <div class="dropdown">
+                        <button class="btn btn-default dropdown-toggle term-child" tid={{child.tid}}
+                                type="button"
+                                search-tag="xiaowen-nandu"
+                                data-toggle="dropdown"
+                                data-hover="dropdown"
+                                aria-expanded="false">
+                                {{ child.name }}
+                        </button>
+                    </div>
+                </div>
+            {% endfor %}
+
+        </div>
+
+        <div class="row tag-timu-row">
+
+            <div class="col-sm-2">
+                <span class="tag-name1">标签:</span>
+            </div>
+
+            {# 题面分析标签 #}
+            <div class="col-sm-2">
+                <div class="dropdown">
+                    {% if content['timianfenxi']|length > 1 %}
+                        <button class="btn btn-default dropdown-toggle"
+                                type="button"
+                                search-tag="timianfenxi-biaoqian"
+                                data-toggle="dropdown"
+                                data-hover="dropdown"
+                                aria-expanded="false"> 
+                                题面分析<span class="caret"></span>
+                        </button>
+                    {% else %}
+                        {% set one_child= content['timianfenxi']|first %}
+                        <button class="btn btn-default dropdown-toggle term-child" tid={{one_child.tid}}
+                                type="button"
+                                search-tag="timianfenxi-biaoqian"
+                                data-toggle="dropdown"
+                                data-hover="dropdown"
+                                aria-expanded="false"> 
+                                题面分析
+                        </button>
+                    {% endif %}
+
+                    {% if content['timianfenxi']|length > 1 %}
+                        <ul class="dropdown-menu dropdownhover-bottom" role="menu" aria-labelledby="dropdownMenu1">
+                            {% for child in content['timianfenxi'] %}
+                                {{ _self.find_children_dropdown(child) }}
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                </div>
+            </div> {# 题面分析标签 #}
+
+
+            {# 解题分析标签 #}
+            <div class="col-sm-2">
+                <div class="dropdown">
+                    {% if content['jietifenxi']|length > 1 %}
+                        <button class="btn btn-default dropdown-toggle"
+                                type="button"
+                                search-tag="jietifenxi-biaoqian"
+                                data-toggle="dropdown"
+                                data-hover="dropdown"
+                                aria-expanded="false"> 
+                                解题分析<span class="caret"></span>
+                        </button>
+                    {% else %}
+                        {% set one_child= content['jietifenxi']|first %}
+                        <button class="btn btn-default dropdown-toggle term-child" tid={{one_child.tid}}
+                                type="button"
+                                search-tag="jietifenxi-biaoqian"
+                                data-toggle="dropdown"
+                                data-hover="dropdown"
+                                aria-expanded="false"> 
+                                解题分析
+                        </button>
+                    {% endif %}
+
+                    {% if content['jietifenxi']|length > 1 %}
+                        <ul class="dropdown-menu dropdownhover-bottom" role="menu" aria-labelledby="dropdownMenu1">
+                            {% for child in content['jietifenxi'] %}
+                                {{ _self.find_children_dropdown(child) }}
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                </div>
+            </div> {# 解题分析标签 #}
+
+
+            {# 干扰标签标签 #}
+            <div class="col-sm-2">
+                <div class="dropdown">
+                    {% if content['ganraobiaoqian']|length > 1 %}
+                        <button class="btn btn-default dropdown-toggle"
+                                type="button"
+                                search-tag="ganrao-xuanxiang"
+                                data-toggle="dropdown"
+                                data-hover="dropdown"
+                                aria-expanded="false"> 
+                                干扰标签<span class="caret"></span>
+                        </button>
+                    {% else %}
+                        {% set one_child= content['ganraobiaoqian']|first %}
+                        <button class="btn btn-default dropdown-toggle term-child" tid={{one_child.tid}}
+                                type="button"
+                                search-tag="ganrao-xuanxiang"
+                                data-toggle="dropdown"
+                                data-hover="dropdown"
+                                aria-expanded="false"> 
+                                干扰标签
+                        </button>
+                    {% endif %}
+
+                    {% if content['ganraobiaoqian']|length > 1 %}
+                        <ul class="dropdown-menu dropdownhover-bottom" role="menu" aria-labelledby="dropdownMenu1">
+                            {% for child in content['ganraobiaoqian'] %}
+                                {{ _self.find_children_dropdown(child) }}
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+
+                </div>
+            </div> {# 干扰标签标签 #}
+
+        </div>  {# row tag-timu-row #}
+
+    {% endblock %}
+</div>
+

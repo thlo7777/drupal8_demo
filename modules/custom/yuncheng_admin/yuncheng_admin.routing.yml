@@ -1,0 +1,7 @@
+yuncheng.ajax:
+  path: '/yc/ajax-api'
+  defaults:
+    _controller: '\Drupal\yuncheng_admin\Controller\YunChengController::ajax_handler'
+    _title: 'yuncheng ajax'
+  requirements:
+    _permission: 'yuncheng admin module'

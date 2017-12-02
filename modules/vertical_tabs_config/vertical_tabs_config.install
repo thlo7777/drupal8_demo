@@ -1,0 +1,57 @@
+<?php
+
+/**
+ * @file
+ * Install and uninstall handling of module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function vertical_tabs_config_install() {
+  module_set_weight('vertical_tabs_config', 1001);
+}
+
+/**
+ * Implements hook_schema().
+ */
+function vertical_tabs_config_schema() {
+  $schema = array();
+
+  $schema['vertical_tabs_config'] = array(
+    'description' => 'Module configuration',
+    'fields' => array(
+      'id' => array(
+        'description' => 'Primary key: ID de registro.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'vertical_tab' => array(
+        'description' => 'Vertical tab name',
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+      'content_type' => array(
+        'description' => 'CT machine name',
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+      'roles' => array(
+        'description' => 'Roles compressed in json',
+        'type' => 'text',
+        'not null' => TRUE,
+      ),
+      'hidden' => array(
+        'description' => 'Indicates if option is visible or not',
+        'type' => 'int',
+        'length' => 1,
+        'not null' => TRUE,
+        'default' => '0',
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+
+  return $schema;
+}

@@ -1,0 +1,13 @@
+# A simple script using jquery ui accordion.
+js_yuncheng.termtree:
+  js:
+    js/bootstrap-treeview.min.js: {}
+    js/term_tree.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupalSettings
+  # Add css file.
+  css:
+    component:
+      css/bootstrap-treeview.min.css: {}
+

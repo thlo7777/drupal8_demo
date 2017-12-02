@@ -1,0 +1,4 @@
+name: 'wechat mobile'
+type: module
+description: 'Drupal 8 wechat mobile client'
+core: '8.x'
